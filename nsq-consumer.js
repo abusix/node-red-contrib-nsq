@@ -10,8 +10,7 @@ module.exports = function (RED) {
             node.connection = []
         } else if (config.connection && config.connection !== "") {
             node.lookupd = []
-            const connectionNode = RED.nodes.getNode(config.connection);
-            node.connection = [node.connection.host + ":" + node.connection.port]
+            node.connection = config.connection.split(",").map(s => s.trim()).filter(s => s !== "")
         } else {
             node.status({fill: "red", shape: "ring", text: "LookupD or Connection option must be set!"})
             return;
