@@ -1,6 +1,6 @@
 {
   "name": "@abusix/node-red-contrib-nsq",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A NodeRED Node for Subscribing and Publishing to NSQ Topics",
   "main": "index.js",
   "scripts": {
