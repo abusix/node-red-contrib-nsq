@@ -3,10 +3,28 @@ module.exports = function (RED) {
 
     function NsqConsumer(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
-        node.connection = RED.nodes.getNode(config.connection);
+        const node = this;
+
+        if (config.lookupd !== "") {
+            node.lookupd = config.lookupd.split(",").map(s => s.trim()).filter(s => s !== "")
+            node.connection = []
+        } else if (config.connection !== "") {
+            node.lookupd = []
+            const connectionNode = RED.nodes.getNode(config.connection);
+            node.connection = [node.connection.host + ":" + node.connection.port]
+        } else {
+            node.status({fill: "red", shape: "ring", text: "LookupD or Connection option must be set!"})
+            return;
+        }
+
         node.topic = config.topic
         node.channel = config.channel
+        node.tls = config.tls
+        if (config.authSecret === null || config.authSecret === '') {
+            node.authSecret = null
+        } else {
+            node.authSecret = config.authSecret
+        }
         node.count = 0
         node.finishImmediately = config.finishImmediately
         node.pendingMessages = {}
@@ -14,7 +32,10 @@ module.exports = function (RED) {
         node.status({fill: "red", shape: "ring", text: "Not Ready"})
 
         const consumer = new nsq.Reader(node.topic, node.channel, {
-            nsqdTCPAddresses: [node.connection.host + ":" + node.connection.port],
+            lookupdHTTPAddresses: node.lookupd,
+            nsqdTCPAddresses: node.connection,
+            tls: node.tls,
+            authSecret: node.authSecret,
             maxInFlight: parseInt(config.maxInFlight || 1),
             maxAttempts: parseInt(config.maxAttempts || 0),
         })
@@ -85,6 +106,7 @@ module.exports = function (RED) {
 
         node.on('close', () => {
             consumer.close()
+            node.status({fill: "red", shape: "ring", text: "Disconnected"})
         })
 
         try {
@@ -93,8 +115,6 @@ module.exports = function (RED) {
             node.error(e)
             node.status({fill: "red", shape: "ring", text: "Can't connect!"})
         }
-
-        /// on teardown consumer.close()
     }
 
     RED.nodes.registerType("nsq-consumer", NsqConsumer);
