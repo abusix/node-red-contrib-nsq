@@ -31,16 +31,23 @@ module.exports = function (RED) {
 
         node.status({fill: "red", shape: "ring", text: "Not Ready"})
 
-        const consumer = new nsq.Reader(node.topic, node.channel, {
+        const options = {
             lookupdHTTPAddresses: node.lookupd,
             nsqdTCPAddresses: node.connection,
             tls: node.tls,
             authSecret: node.authSecret,
             maxInFlight: parseInt(config.maxInFlight || 1),
             maxAttempts: parseInt(config.maxAttempts || 0),
-        })
+        }
+
+        this.debug('NSQ Reader topic: ' + node.topic)
+        this.debug('NSQ Reader channel: ' + node.channel)
+        this.debug('NSQ Reader options: ' + JSON.stringify(options))
+
+        const consumer = new nsq.Reader(node.topic, node.channel, options)
 
         consumer.on('error', err => {
+            this.error('Error with NSQ reader! ' + err);
             node.error(err)
         })
         consumer.on('ready', () => {
