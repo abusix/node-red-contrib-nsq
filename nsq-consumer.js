@@ -5,10 +5,10 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
 
-        if (config.lookupd !== "") {
+        if (config.lookupd && config.lookupd !== "") {
             node.lookupd = config.lookupd.split(",").map(s => s.trim()).filter(s => s !== "")
             node.connection = []
-        } else if (config.connection !== "") {
+        } else if (config.connection && config.connection !== "") {
             node.lookupd = []
             const connectionNode = RED.nodes.getNode(config.connection);
             node.connection = [node.connection.host + ":" + node.connection.port]
