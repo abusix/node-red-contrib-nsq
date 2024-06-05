@@ -28,7 +28,7 @@ module.exports = function (RED) {
         node.finishImmediately = config.finishImmediately
         node.pendingMessages = {}
 
-        node.status({fill: "red", shape: "ring", text: "Not Ready"})
+        node.status({fill: "red", shape: "ring", text: "Initializing..."})
 
         const options = {
             lookupdHTTPAddresses: node.lookupd,
@@ -55,6 +55,13 @@ module.exports = function (RED) {
         consumer.on('not_ready', () => {
             node.status({fill: "red", shape: "ring", text: "Not Ready"})
         })
+        consumer.on('nsqd_connected', (host, port) => {
+            node.debug(`NSQD connected to ${host}:${port}`)
+        })
+        consumer.on('nsqd_closed', (host, port) => {
+            node.debug(`NSQD closed to ${host}:${port}`)
+        })
+
         consumer.on('message', msg => {
             node.count++
             node.status({fill: "green", shape: "ring", text: `Ready (${node.count})`})
