@@ -3,9 +3,12 @@
     category: 'input',
     color: '#69c',
     defaults: {
-      connection: { value: "", type: "nsq-connection" },
+      lookupd: { value: "http://localhost:4161", required: false },
+      connection: { value: "", required: false },
       topic: { value: "", required: true },
       channel: { value: "node-red", required: true },
+      authSecret: { value: null, required: false },
+      tls: { value: false },
       finishImmediately: { value: true },
       maxInFlight: { value: 1, required: true, validate: RED.validators.number() },
       maxAttempts: { value: 0, required: true, validate: RED.validators.number() }
@@ -19,9 +22,13 @@
 </script>
 
 <script type="text/x-red" data-template-name="nsq-consumer">
+   <div class="form-row">
+        <label for="node-input-lookupd"><i class="fa fa-plug"></i>Lookupd Hosts</label>
+        <input type="text" id="node-input-lookupd" placeholder="LookupD Hosts ">
+    </div>
     <div class="form-row">
-        <label for="node-input-connection"><i class="fa fa-plug"></i> Connection</label>
-        <input type="text" id="node-input-connection" placeholder="Connection">
+        <label for="node-input-connection"><i class="fa fa-plug"></i>nsqd TCP Connection</label>
+        <input type="text" id="node-input-connection" placeholder="nsqd TCP addresses (separated by comma)">
     </div>
     <div class="form-row">
         <label for="node-input-topic"><i class="icon-tag"></i> Topic</label>
@@ -30,6 +37,14 @@
     <div class="form-row">
         <label for="node-input-channel"><i class="icon-tag"></i> Channel</label>
         <input type="text" id="node-input-channel" placeholder="node-red">
+    </div>
+    <div class="form-row">
+        <label for="node-input-authSecret"><i class="icon-tag"></i> AuthSecret</label>
+        <input type="password" id="node-input-authSecret" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-input-tls"><i class="icon-check"></i> TLS</label>
+        <input type="checkbox" id="node-input-tls">
     </div>
     <div class="form-row">
         <label for="node-input-finishImmediately"><i class="icon-check"></i> Finish Immediately</label>
